@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Seahorse AR - Apple Quick Look</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin: 0;
+            padding: 40px 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        
+        .container {
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .seahorse-preview {
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            margin: 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5em;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .ar-link {
+            display: inline-block;
+            background: linear-gradient(45deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            text-decoration: none;
+            padding: 20px 40px;
+            border-radius: 50px;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin: 20px 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+        
+        .ar-link:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.5);
+        }
+        
+        .instructions {
+            margin-top: 30px;
+            font-size: 1.1em;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+        
+        .device-check {
+            background: rgba(255, 193, 7, 0.2);
+            border: 1px solid rgba(255, 193, 7, 0.5);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        .upload-zone {
+            border: 2px dashed rgba(255, 255, 255, 0.5);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .upload-zone:hover {
+            border-color: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .upload-zone input {
+            display: none;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            font-size: 0.9em;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🐠 Seahorse AR</h1>
+        
+        <div class="seahorse-preview">🌊</div>
+        
+        <div id="device-status" class="device-check">
+            <strong>📱 Device Status:</strong> <span id="status-text">Checking...</span>
+        </div>
+        
+        <!-- This is Apple's recommended simple approach -->
+        <a href="#" id="ar-link" class="ar-link" rel="ar">
+            📱 View in AR
+        </a>
+        
+        <!-- File upload for your USDZ file -->
+        <div class="upload-zone" onclick="document.getElementById('file-input').click()">
+            <div style="font-size: 2em; margin-bottom: 10px;">📁</div>
+            <strong>Click to Load Your USDZ File</strong>
+            <div style="font-size: 0.9em; margin-top: 5px;">
+                Drop seahorse_anim_mtl_variant.usdz here
+            </div>
+            <input type="file" id="file-input" accept=".usdz" onchange="loadUSDZ(this)">
+        </div>
+        
+        <div class="instructions">
+            <strong>📋 Apple's Simple Instructions:</strong><br>
+            1. Load your USDZ file above<br>
+            2. Tap "View in AR" on iPhone Safari<br>
+            3. Move phone to scan surfaces<br>
+            4. Tap to place your seahorse<br>
+            5. Walk around and enjoy! 🌊
+        </div>
+        
+        <div class="footer">
+            <p>💡 This follows Apple's exact documentation</p>
+            <p>⚡ Pure HTML + Quick Look (no complex libraries)</p>
+        </div>
+    </div>
+
+    <script>
+        // Check device compatibility (Apple's way)
+        function checkAppleDevice() {
+            const statusEl = document.getElementById('status-text');
+            const deviceCheck = document.getElementById('device-status');
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+            const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
+            
+            if (isIOS && isSafari) {
+                statusEl.innerHTML = '✅ Perfect! iPhone Safari - Ready for AR Quick Look';
+                deviceCheck.style.background = 'rgba(76, 175, 80, 0.2)';
+                deviceCheck.style.borderColor = 'rgba(76, 175, 80, 0.5)';
+            } else if (isIOS) {
+                statusEl.innerHTML = '⚠️ iPhone detected - Please use Safari browser';
+                deviceCheck.style.background = 'rgba(255, 193, 7, 0.2)';
+            } else {
+                statusEl.innerHTML = '📱 For AR experience, open on iPhone Safari';
+                deviceCheck.style.background = 'rgba(255, 107, 107, 0.2)';
+                deviceCheck.style.borderColor = 'rgba(255, 107, 107, 0.5)';
+            }
+        }
+        
+        // Load USDZ file (Apple's simple approach)
+        function loadUSDZ(input) {
+            const file = input.files[0];
+            if (file && file.name.toLowerCase().endsWith('.usdz')) {
+                const url = URL.createObjectURL(file);
+                const arLink = document.getElementById('ar-link');
+                
+                // Apple's simple method - just set href
+                arLink.href = url;
+                arLink.innerHTML = '🐠 View Seahorse in AR';
+                
+                // Update upload zone
+                const uploadZone = document.querySelector('.upload-zone');
+                uploadZone.innerHTML = `
+                    <div style="font-size: 2em; margin-bottom: 10px;">✅</div>
+                    <strong>Seahorse Loaded!</strong>
+                    <div style="font-size: 0.9em; margin-top: 5px;">
+                        Ready for AR Quick Look
+                    </div>
+                `;
+                
+                console.log('USDZ loaded:', file.name);
+                console.log('Apple Quick Look ready');
+            } else {
+                alert('Please select a .usdz file');
+            }
+        }
+        
+        // Setup drag and drop
+        function setupDragDrop() {
+            const uploadZone = document.querySelector('.upload-zone');
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                uploadZone.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            uploadZone.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    const fileInput = document.getElementById('file-input');
+                    fileInput.files = files;
+                    loadUSDZ(fileInput);
+                }
+            }
+        }
+        
+        // Initialize (Apple's way - keep it simple)
+        window.addEventListener('load', () => {
+            checkAppleDevice();
+            setupDragDrop();
+            console.log('Simple Apple AR Quick Look ready');
+        });
+    </script>
+</body>
+</html>
