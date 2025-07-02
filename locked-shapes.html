@@ -25,6 +25,43 @@
             font-size: 13px;
             max-width: 350px;
             box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+            transition: all 0.3s ease;
+        }
+        
+        #ui.hidden {
+            transform: translateX(-100%);
+            opacity: 0.1;
+        }
+        
+        #toggle-menu {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1001;
+            background: rgba(76, 175, 80, 0.9);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            width: 50px;
+            height: 50px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+        
+        #toggle-menu:hover {
+            background: rgba(76, 175, 80, 1);
+            transform: scale(1.1);
+        }
+        
+        #ui.hidden ~ #toggle-menu {
+            background: rgba(255, 107, 107, 0.9);
+        }
+        
+        #ui.hidden ~ #toggle-menu:hover {
+            background: rgba(255, 107, 107, 1);
         }
         
         button {
@@ -89,6 +126,9 @@
         }
     </style>
 </head><body>
+    <!-- Toggle Menu Button -->
+    <button id="toggle-menu" onclick="toggleMenu()" title="Hide/Show Menu">📱</button>
+    
     <div id="ui">
         <div class="title">🔒 AR Enhanced Shapes</div>
         
@@ -121,7 +161,8 @@
             1. <a href="#" id="marker-link" onclick="showMarker()">Print marker</a> & point camera<br>
             2. Choose lock mode for behavior<br>
             3. Generate shapes - they remember settings!<br>
-            4. Shapes persist when marker lost/found
+            4. 📱 Use toggle button to hide/show menu<br>
+            5. Shapes persist when marker lost/found
         </div>
     </div>
 
@@ -190,6 +231,55 @@
     <script src="enhanced-shape-generator.js"></script>
     
     <script>
+        // Menu toggle functionality
+        let menuVisible = true;
+        
+        function toggleMenu() {
+            const ui = document.getElementById('ui');
+            const toggleBtn = document.getElementById('toggle-menu');
+            
+            menuVisible = !menuVisible;
+            
+            if (menuVisible) {
+                ui.classList.remove('hidden');
+                toggleBtn.innerHTML = '📱';
+                toggleBtn.title = 'Hide Menu';
+            } else {
+                ui.classList.add('hidden');
+                toggleBtn.innerHTML = '📋';
+                toggleBtn.title = 'Show Menu';
+            }
+        }
+        
+        // Keyboard shortcut to toggle menu (spacebar)
+        document.addEventListener('keydown', function(event) {
+            if (event.code === 'Space' && !event.target.matches('input, textarea')) {
+                event.preventDefault();
+                toggleMenu();
+            }
+        });
+        
+        // Auto-hide menu after 10 seconds of inactivity
+        let hideTimer;
+        function resetHideTimer() {
+            clearTimeout(hideTimer);
+            if (menuVisible) {
+                hideTimer = setTimeout(() => {
+                    if (menuVisible) {
+                        toggleMenu();
+                    }
+                }, 10000); // 10 seconds
+            }
+        }
+        
+        // Reset timer on any interaction
+        document.addEventListener('click', resetHideTimer);
+        document.addEventListener('touchstart', resetHideTimer);
+        document.addEventListener('mousemove', resetHideTimer);
+        
+        // Start the timer
+        resetHideTimer();
+        
         // Update UI button states
         function setLockMode(mode) {
             // Remove active class from all lock buttons

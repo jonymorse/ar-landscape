@@ -25,6 +25,39 @@
             font-size: 14px;
             max-width: 320px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+        
+        #ui.hidden {
+            transform: translateX(-100%);
+            opacity: 0.1;
+        }
+        
+        #toggle-menu {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1001;
+            background: rgba(76, 175, 80, 0.9);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            width: 50px;
+            height: 50px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+        
+        #toggle-menu:hover {
+            background: rgba(76, 175, 80, 1);
+            transform: scale(1.1);
+        }
+        
+        #ui.hidden ~ #toggle-menu {
+            background: rgba(255, 107, 107, 0.9);
         }
         
         button {
@@ -81,6 +114,9 @@
     </style>
 </head>
 <body>
+    <!-- Toggle Menu Button -->
+    <button id="toggle-menu" onclick="toggleMenu()" title="Hide/Show Menu">📱</button>
+    
     <div id="ui">
         <div class="title">🎲 AR Shape Generator</div>
         
@@ -104,7 +140,8 @@
             1. <a href="#" id="marker-link" onclick="showMarker()">Print this marker</a><br>
             2. Point camera at the marker<br>
             3. Shapes will appear and animate<br>
-            4. Try different shape buttons!
+            4. 📱 Use toggle button to hide/show menu<br>
+            5. Try different shape buttons!
         </div>
     </div>
 
@@ -180,5 +217,35 @@
     </div>
 
     <script src="shape-generator.js"></script>
+    
+    <script>
+        // Menu toggle functionality
+        let menuVisible = true;
+        
+        function toggleMenu() {
+            const ui = document.getElementById('ui');
+            const toggleBtn = document.getElementById('toggle-menu');
+            
+            menuVisible = !menuVisible;
+            
+            if (menuVisible) {
+                ui.classList.remove('hidden');
+                toggleBtn.innerHTML = '📱';
+                toggleBtn.title = 'Hide Menu';
+            } else {
+                ui.classList.add('hidden');
+                toggleBtn.innerHTML = '📋';
+                toggleBtn.title = 'Show Menu';
+            }
+        }
+        
+        // Keyboard shortcut (spacebar) to toggle menu
+        document.addEventListener('keydown', function(event) {
+            if (event.code === 'Space' && !event.target.matches('input, textarea')) {
+                event.preventDefault();
+                toggleMenu();
+            }
+        });
+    </script>
 </body>
 </html>
