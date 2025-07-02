@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR Enhanced Shape Generator - Locking System</title>
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/aframe/build/aframe-ar.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+        }
+        
+        #ui {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 18px;
+            border-radius: 12px;
+            font-size: 13px;
+            max-width: 350px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+        
+        button {
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            margin: 2px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+            transition: all 0.2s ease;
+        }
+        
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+        }
+        
+        button.active {
+            background: linear-gradient(45deg, #4CAF50 0%, #45a049 100%);
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+        }
+        
+        .button-row {
+            margin: 8px 0;
+        }
+        
+        .title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            color: #4ECDC4;
+        }
+        
+        .section {
+            border-top: 1px solid #444;
+            padding-top: 10px;
+            margin-top: 12px;
+        }
+        
+        .instructions {
+            margin-top: 12px;
+            font-size: 12px;
+            line-height: 1.4;
+            color: #ddd;
+        }
+        
+        #marker-link {
+            color: #4ECDC4;
+            text-decoration: none;
+        }
+        
+        #marker-link:hover {
+            text-decoration: underline;
+        }
+        
+        .lock-description {
+            font-size: 11px;
+            color: #aaa;
+            margin-top: 5px;
+        }
+    </style>
+</head><body>
+    <div id="ui">
+        <div class="title">🔒 AR Enhanced Shapes</div>
+        
+        <div class="button-row">
+            <button onclick="generateShape()">🎲 Random Shape</button>
+            <button onclick="generateFormation()">⭐ Formation</button>
+            <button onclick="clearShapes()">🗑️ Clear All</button>
+        </div>
+        
+        <div class="section">
+            <strong>🔒 Lock Modes:</strong><br>
+            <div class="button-row">
+                <button id="lock-full" onclick="setLockMode('full')" class="active">🔒 Full Lock</button>
+                <button id="lock-position" onclick="setLockMode('position')">📍 Position</button>
+            </div>
+            <div class="button-row">
+                <button id="lock-rotation" onclick="setLockMode('rotation')">🔄 Rotation</button>
+                <button id="lock-none" onclick="setLockMode('none')">🆓 Free</button>
+            </div>
+            <div class="lock-description">
+                <strong>Full Lock:</strong> Shapes stay perfectly on marker<br>
+                <strong>Position:</strong> Fixed position, can animate<br>
+                <strong>Rotation:</strong> Can move but orientation locked<br>
+                <strong>Free:</strong> Full animation and floating
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <strong>📋 Instructions:</strong><br>
+            1. <a href="#" id="marker-link" onclick="showMarker()">Print marker</a> & point camera<br>
+            2. Choose lock mode for behavior<br>
+            3. Generate shapes - they remember settings!<br>
+            4. Shapes persist when marker lost/found
+        </div>
+    </div>
+
+    <!-- AR Scene -->
+    <a-scene 
+        vr-mode-ui="enabled: false" 
+        arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
+        renderer="logarithmicDepthBuffer: true; antialias: true; colorManagement: true;"
+        embedded>
+
+        <!-- Marker: Hiro marker -->
+        <a-marker 
+            id="main-marker"
+            preset="hiro" 
+            smooth="true" 
+            smoothCount="10" 
+            smoothTolerance="0.01" 
+            smoothThreshold="5">
+            
+            <!-- Shape Container -->
+            <a-entity id="landscape-container" position="0 0 0">
+                <!-- Shapes appear here -->
+            </a-entity>
+            
+            <!-- Optional: Marker base indicator -->
+            <a-ring 
+                position="0 0.01 0" 
+                radius-inner="0.8" 
+                radius-outer="1.0" 
+                color="#4ECDC4" 
+                opacity="0.2">
+            </a-ring>
+            
+        </a-marker>
+
+        <!-- Enhanced Lighting -->
+        <a-light type="ambient" color="#ffffff" intensity="0.7"></a-light>
+        <a-light type="directional" position="3 5 3" color="#ffffff" intensity="0.9" shadow="cast: true"></a-light>
+
+        <!-- AR Camera -->
+        <a-entity camera></a-entity>
+    </a-scene>
+    <!-- Marker Modal -->
+    <div id="marker-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; padding: 20px; box-sizing: border-box;">
+        <div style="background: white; padding: 30px; border-radius: 15px; max-width: 500px; margin: 50px auto; text-align: center; box-shadow: 0 8px 25px rgba(0,0,0,0.3);">
+            <h2 style="color: #333; margin-bottom: 20px;">📄 Print This Marker</h2>
+            <p style="color: #666; margin-bottom: 20px;">Print this Hiro marker for object locking:</p>
+            
+            <div style="border: 3px solid #ddd; border-radius: 10px; padding: 15px; margin: 20px 0; background: white;">
+                <img src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/data/images/hiro.png" 
+                     style="width: 200px; height: 200px; display: block; margin: 0 auto;">
+            </div>
+            
+            <p style="font-size: 14px; color: #666; margin-bottom: 20px;">
+                🔒 <strong>Locking Features:</strong><br>
+                • Shapes remember their position when marker is lost<br>
+                • Different lock modes for various behaviors<br>
+                • State persists between sessions<br>
+                • Perfect tracking and stability
+            </p>
+            
+            <button onclick="hideMarker()" style="margin-top: 20px; padding: 15px 30px; font-size: 14px;">Test Locking! 🔒</button>
+        </div>
+    </div>
+
+    <script src="enhanced-shape-generator.js"></script>
+    
+    <script>
+        // Update UI button states
+        function setLockMode(mode) {
+            // Remove active class from all lock buttons
+            document.querySelectorAll('[id^="lock-"]').forEach(btn => btn.classList.remove('active'));
+            // Add active class to selected button
+            document.getElementById('lock-' + mode).classList.add('active');
+            // Call the generator function
+            enhancedShapeGenerator.setLockMode(mode);
+        }
+    </script>
+</body>
+</html>
