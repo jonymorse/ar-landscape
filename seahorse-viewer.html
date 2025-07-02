@@ -154,7 +154,8 @@
     <div class="viewer-container">
         <model-viewer
             id="seahorse-viewer"
-            src=""
+            src="seahorse_anim_mtl_variant.usdz"
+            ios-src="seahorse_anim_mtl_variant.usdz"
             alt="3D Seahorse Animation"
             auto-rotate
             camera-controls
@@ -167,7 +168,6 @@
             interpolation-decay="200"
             ar
             ar-modes="webxr scene-viewer quick-look"
-            ios-src=""
             loading="eager">
             
             <div class="progress-bar" hidden>
@@ -189,10 +189,10 @@
             </div>
             
             <div class="upload-area" onclick="document.getElementById('file-input').click()">
-                <div style="font-size: 2em; margin-bottom: 10px;">📁</div>
-                <div><strong>Click to Load Your USDZ File</strong></div>
+                <div style="font-size: 2em; margin-bottom: 10px;">✅</div>
+                <div><strong>Seahorse Loaded & Ready!</strong></div>
                 <div style="font-size: 0.9em; opacity: 0.7; margin-top: 5px;">
-                    Drop your seahorse_anim_mtl_variant.usdz file here
+                    Click here only to load a different USDZ file
                 </div>
                 <input type="file" id="file-input" accept=".usdz,.glb,.gltf" onchange="loadModel(this)">
             </div>
