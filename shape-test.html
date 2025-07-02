@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR Shape Generator - Marker Based</title>
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/aframe/build/aframe-ar.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+        }
+        
+        #ui {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            max-width: 320px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        
+        button {
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            margin: 3px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+            transition: transform 0.2s;
+        }
+        
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        
+        .button-row {
+            margin: 8px 0;
+        }
+        
+        .title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #4ECDC4;
+        }
+        
+        .instructions {
+            margin-top: 12px;
+            font-size: 12px;
+            line-height: 1.4;
+            color: #ddd;
+        }
+        
+        #marker-link {
+            color: #4ECDC4;
+            text-decoration: none;
+            margin-top: 8px;
+            display: inline-block;
+        }
+        
+        #marker-link:hover {
+            text-decoration: underline;
+        }
+        
+        .shape-buttons {
+            border-top: 1px solid #444;
+            padding-top: 10px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="ui">
+        <div class="title">🎲 AR Shape Generator</div>
+        
+        <div class="button-row">
+            <button onclick="generateShape()">🎲 Random Shape</button>
+            <button onclick="generateMultiple()">🔷 Multiple Shapes</button>
+            <button onclick="clearShape()">🗑️ Clear</button>
+        </div>
+        
+        <div class="shape-buttons">
+            <strong>Specific Shapes:</strong><br>
+            <div class="button-row">
+                <button onclick="generateCube()">📦 Cube</button>
+                <button onclick="generateSphere()">⚽ Sphere</button>
+                <button onclick="generatePyramid()">🔺 Pyramid</button>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <strong>📋 Instructions:</strong><br>
+            1. <a href="#" id="marker-link" onclick="showMarker()">Print this marker</a><br>
+            2. Point camera at the marker<br>
+            3. Shapes will appear and animate<br>
+            4. Try different shape buttons!
+        </div>
+    </div>
+
+    <!-- AR Scene with Marker Detection -->
+    <a-scene 
+        vr-mode-ui="enabled: false" 
+        arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
+        renderer="logarithmicDepthBuffer: true; antialias: true; colorManagement: true;"
+        embedded>
+        
+        <!-- Assets -->
+        <a-assets>
+            <!-- Lighting setup -->
+        </a-assets>
+
+        <!-- Marker: Hiro marker (built into AR.js) -->
+        <a-marker 
+            id="main-marker"
+            preset="hiro" 
+            smooth="true" 
+            smoothCount="10" 
+            smoothTolerance="0.01" 
+            smoothThreshold="5">
+            
+            <!-- Shape Container - All shapes attach here -->
+            <a-entity id="landscape-container" position="0 0 0">
+                <!-- Shapes will be generated here -->
+            </a-entity>
+            
+            <!-- Optional: Add a platform/base -->
+            <a-cylinder 
+                position="0 -0.05 0" 
+                radius="1.2" 
+                height="0.1" 
+                color="#34495e" 
+                opacity="0.3">
+            </a-cylinder>
+            
+        </a-marker>
+
+        <!-- Lighting -->
+        <a-light type="ambient" color="#ffffff" intensity="0.6"></a-light>
+        <a-light type="directional" position="2 4 2" color="#ffffff" intensity="0.8"></a-light>
+
+        <!-- AR Camera -->
+        <a-entity camera></a-entity>
+    </a-scene>
+
+    <!-- Marker Display Modal -->
+    <div id="marker-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; padding: 20px; box-sizing: border-box;">
+        <div style="background: white; padding: 30px; border-radius: 15px; max-width: 500px; margin: 50px auto; text-align: center; box-shadow: 0 8px 25px rgba(0,0,0,0.3);">
+            <h2 style="color: #333; margin-bottom: 20px;">📄 Print This Marker</h2>
+            <p style="color: #666; margin-bottom: 20px;">Print this image on paper (black and white is fine):</p>
+            
+            <!-- Hiro Marker Image -->
+            <div style="border: 3px solid #ddd; border-radius: 10px; padding: 15px; margin: 20px 0; background: white;">
+                <img src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/data/images/hiro.png" 
+                     style="width: 200px; height: 200px; display: block; margin: 0 auto;">
+            </div>
+            
+            <p style="font-size: 14px; color: #666; margin-bottom: 20px;">
+                💡 <strong>Tips:</strong><br>
+                • Print at least 3x3 inches for best tracking<br>
+                • Ensure good lighting when testing<br>
+                • Keep marker flat and visible
+            </p>
+            
+            <p style="font-size: 14px; color: #666;">
+                Download: <a href="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/data/images/hiro.png" download="hiro-marker.png" style="color: #4ECDC4;">hiro-marker.png</a>
+            </p>
+            <button onclick="hideMarker()" style="margin-top: 20px; padding: 15px 30px; font-size: 14px;">Got it! Let's test! 🚀</button>
+        </div>
+    </div>
+
+    <script src="shape-generator.js"></script>
+</body>
+</html>
